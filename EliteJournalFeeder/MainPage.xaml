@@ -7,7 +7,89 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="10">
+        <RelativePanel.Resources>
+            <local:StartButtonConverter x:Key="StartButtonConverter"/>
+            <local:NullIsFalseConverter x:Key="NullIsFalseConverter"/>
+        </RelativePanel.Resources>
+        
+        <Border x:Name="borderIO" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                BorderThickness="1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                Padding="5,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="180" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
 
-    </Grid>
+                <TextBox Grid.Column="0" x:Name="txtInputFile" TextWrapping="Wrap" VerticalAlignment="Center" 
+                         Text="{Binding InputFile.Name}"
+                         HorizontalContentAlignment="Stretch" />
+                <Button Grid.Column="1" x:Name="btnSourceFilePicker" Margin="5,0,0,0" Content="Choose Input File" 
+                        Click="btnSourceFilePicker_Click"
+                        HorizontalAlignment="Stretch" />
+
+                <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtOutputFolder" TextWrapping="Wrap" VerticalAlignment="Center" 
+                         Text="{Binding OutputFolder.Name}"
+                         HorizontalContentAlignment="Stretch" />
+                <Button Grid.Row="1" Grid.Column="1" x:Name="btnDestFolderPicker" Margin="5,0,0,0" Content="Choose Output Folder" 
+                        HorizontalAlignment="Stretch" Click="btnDestFolderPicker_Click" />
+            </Grid>
+        </Border>
+
+        <Border x:Name="borderTimeAcceleration" 
+                RelativePanel.Below="borderIO"
+                RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                BorderThickness="1,0,1,1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                Padding="5,0">
+
+            <StackPanel Orientation="Horizontal" RelativePanel.Below="gridIO">
+                <TextBlock x:Name="lblTimeAccel" Text="Time acceleration:" VerticalAlignment="Center" Padding="0,0,5,0" />
+                <Slider x:Name="sliderTimeAccel" Width="100" VerticalAlignment="Center"
+                        Value="{Binding TimeAcceleration, Mode=TwoWay}" Minimum="1" Maximum="10" LargeChange="1"/>
+                <TextBlock Text="{Binding TimeAcceleration, FallbackValue=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <TextBlock Text="x" VerticalAlignment="Center" Padding="2,0,5,0"/>
+            </StackPanel>
+        </Border>
+
+        <Button x:Name="btnStart" Grid.Column="5" Width="175" Margin="0,0,5,0" 
+                IsEnabled="{Binding IsStartEnabled}"
+                Content="{Binding Path=IsRunning, Converter={StaticResource StartButtonConverter}, FallbackValue=Start}"
+                RelativePanel.AlignVerticalCenterWith="borderTimeAcceleration"
+                RelativePanel.AlignRightWithPanel="True"
+                />
+
+        <Border x:Name="borderBreakpoint" 
+                RelativePanel.Below="borderTimeAcceleration"
+                RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                BorderThickness="1,0,1,1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                Padding="5,5">
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Pause at timestamp:" Margin="0,0,5,0" VerticalAlignment="Center" />
+                <ComboBox x:Name="cboHours" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="70" PlaceholderText="HH" SelectionChanged="BreakpointTime_SelectionChanged" />
+                <TextBlock Text=":" VerticalAlignment="Center" />
+                <ComboBox x:Name="cboMinutes" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="70" PlaceholderText="mm" SelectionChanged="BreakpointTime_SelectionChanged"/>
+                <TextBlock Text=":" VerticalAlignment="Center" />
+                <ComboBox x:Name="cboSeconds" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="70" PlaceholderText="ss" SelectionChanged="BreakpointTime_SelectionChanged"/>
+
+                <ToggleSwitch x:Name="switchBreakpoint" Margin="10,0" IsOn="{Binding IsBreakpointEnabled}" 
+                              IsEnabled="{Binding BreakpointTime, Converter={StaticResource NullIsFalseConverter}}" />
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="borderEvents" 
+                RelativePanel.Below="borderBreakpoint"
+                RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.AlignBottomWithPanel="True"
+                BorderThickness="1,0,1,1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                Padding="5,5">
+
+            <ListBox ItemsSource="{Binding LogEvents}" />
+        </Border>
+    </RelativePanel>
 </Page>
