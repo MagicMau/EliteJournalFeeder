@@ -11,6 +11,7 @@
         <RelativePanel.Resources>
             <local:StartButtonConverter x:Key="StartButtonConverter"/>
             <local:NullIsFalseConverter x:Key="NullIsFalseConverter"/>
+            <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         </RelativePanel.Resources>
         
         <Border x:Name="borderIO" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
@@ -27,14 +28,14 @@
                 </Grid.RowDefinitions>
 
                 <TextBox Grid.Column="0" x:Name="txtInputFile" TextWrapping="Wrap" VerticalAlignment="Center" 
-                         Text="{Binding InputFile.Name}"
+                         Text="{Binding InputFile.Name, TargetNullValue=(no file selected)}"
                          HorizontalContentAlignment="Stretch" />
                 <Button Grid.Column="1" x:Name="btnSourceFilePicker" Margin="5,0,0,0" Content="Choose Input File" 
                         Click="btnSourceFilePicker_Click"
                         HorizontalAlignment="Stretch" />
 
                 <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtOutputFolder" TextWrapping="Wrap" VerticalAlignment="Center" 
-                         Text="{Binding OutputFolder.Name}"
+                         Text="{Binding OutputFolder.Name, TargetNullValue=(no folder selected)}"
                          HorizontalContentAlignment="Stretch" />
                 <Button Grid.Row="1" Grid.Column="1" x:Name="btnDestFolderPicker" Margin="5,0,0,0" Content="Choose Output Folder" 
                         HorizontalAlignment="Stretch" Click="btnDestFolderPicker_Click" />
@@ -49,8 +50,8 @@
 
             <StackPanel Orientation="Horizontal" RelativePanel.Below="gridIO">
                 <TextBlock x:Name="lblTimeAccel" Text="Time acceleration:" VerticalAlignment="Center" Padding="0,0,5,0" />
-                <Slider x:Name="sliderTimeAccel" Width="100" VerticalAlignment="Center"
-                        Value="{Binding TimeAcceleration, Mode=TwoWay}" Minimum="1" Maximum="10" LargeChange="1"/>
+                <Slider x:Name="sliderTimeAccel" Width="200" VerticalAlignment="Center"
+                        Value="{Binding TimeAcceleration, Mode=TwoWay}" Minimum="1" Maximum="20" LargeChange="1"/>
                 <TextBlock Text="{Binding TimeAcceleration, FallbackValue=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
                 <TextBlock Text="x" VerticalAlignment="Center" Padding="2,0,5,0"/>
             </StackPanel>
@@ -60,7 +61,7 @@
                 IsEnabled="{Binding IsStartEnabled}"
                 Content="{Binding Path=IsRunning, Converter={StaticResource StartButtonConverter}, FallbackValue=Start}"
                 RelativePanel.AlignVerticalCenterWith="borderTimeAcceleration"
-                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True" Click="btnStart_Click"
                 />
 
         <Border x:Name="borderBreakpoint" 
@@ -77,19 +78,29 @@
                 <TextBlock Text=":" VerticalAlignment="Center" />
                 <ComboBox x:Name="cboSeconds" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="70" PlaceholderText="ss" SelectionChanged="BreakpointTime_SelectionChanged"/>
 
-                <ToggleSwitch x:Name="switchBreakpoint" Margin="10,0" IsOn="{Binding IsBreakpointEnabled}" 
+                <ToggleSwitch Margin="10,0" IsOn="{Binding IsBreakpointEnabled}" 
                               IsEnabled="{Binding BreakpointTime, Converter={StaticResource NullIsFalseConverter}}" />
             </StackPanel>
         </Border>
 
         <Border x:Name="borderEvents" 
-                RelativePanel.Below="borderBreakpoint"
+            Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"
+            RelativePanel.Below="borderBreakpoint"
                 RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True"
                 RelativePanel.AlignBottomWithPanel="True"
                 BorderThickness="1,0,1,1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 Padding="5,5">
-
-            <ListBox ItemsSource="{Binding LogEvents}" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding CurrentTimeText, FallbackValue=CurrentText}" />
+                    <TextBlock Margin="25,0,0,0" Text="{Binding NextEventText, FallbackValue=NextEvent}"/>
+                </StackPanel>
+                <ListBox x:Name="lbxEvents" Grid.Row="1" ItemsSource="{Binding LogEvents}" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+            </Grid>
         </Border>
     </RelativePanel>
 </Page>
